@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-   
+from __future__ import absolute_import, print_function
+from pygame import mixer
+
+import tweepy, serial, pygame, sys, random
+
+#Twitter-verifisering
+consumer_key="UIdYGh6L2Qf0Kh5YfuA0ZDF0j"
+consumer_secret="JU92dGN5WxkvdAm9ErJwMMyIYmtEptp4KqHQnZJscoIVTDRqDG"
+access_token="724515261743792128-9AiHFb2qpI0Jxxcu047NAn25MZIEvqT"
+access_token_secret="dO2xE4A118OR8GNDXWzdu2Hj0ObGhsFwByHWiG5zbSRkQ"
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.secure = True
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth)
+
+# Twitternavn kommer opp om koblet til.
+print(api.me().name)
+
+#USB/frekvens til Arduino
+ser = serial.Serial('/dev/ttyUSB0', 9600)
+
+while True:
+    tid = 120 #Tid pA timeren i sek.
+    best = tid
+
+    arduino = int(ser.readline())
+    print (arduino) #Se at den leser verdiene riktig.
+    #arduino = 119 #testing av kode uten Arduino tilkoblet.
+
+    if tid<arduino:
+        pygame.mixer.init()
+        averdi = str(arduino) #Tallverdi fra Arduinoen
+        fil = str('.mp3')
+        lyden = (averdi+fil) #Setter dem sammen til lydfil-navnet
+        print (lyden)
+        pygame.mixer.music.load(lyden)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy() == True:
+            isplaying = pygame.mixer.music.get_busy()
+            volume = pygame.mixer.music.get_volume()
+            #Sjekke om det kommer riktig volum osv. Sjekk alsamixer i cmd for volum.
+            #print ("Sound is playing ", isplaying, ", Volume: ", volume) #Viser volum osv.
+            continue
+
+
+    if best >= arduino:
+        best = arduino
+    
+    if tid >= arduino:
+        text_file = open("tweets.txt","r")
+        tweet = []
+        for line in text_file:
+            line = line.strip('\n')
+            tweet.append(line)
+        text_file.close()
+        status = random.choice(tweet)
+        api.update_status(status=status%(arduino,best))
+
+else:
+print («feil tallverdi») #for å se om det kommer inn feil.
