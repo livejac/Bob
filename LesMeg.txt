@@ -1,0 +1,5 @@
+Slavene og mesteren deler i stor grad kode, så de funksjonene
+som er delt, har kun kommentarer i mesterkoden
+
+KjedeSlaveArm og KjedeSlaveBen01 styrer lysene i tidtakeren,
+den siste slaven har ingen "ekstra" funksjoner.
